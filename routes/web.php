@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Auth::routes(['register' => false,'reset' => false]);
-Route::group(['middleware'=>['auth']],function(){
+Route::group(['middleware'=>['auth','PreventBackHistory']],function(){
     Route::get('/',[HomeController::class,'index'])->name('home');
     Route::resource('companies',CompanyController::class);
     Route::resource('contacts',ContactController::class);

@@ -16,7 +16,25 @@ class ContactController extends Controller
     public function index()
     {
         $message=null;
-        $contacts=ContactPerson::paginate(10);
+        $contacts=new ContactPerson();
+        if (request()->first_name) {
+            $contacts=$contacts->where('first_name','like','%'.request()->first_name.'%');
+        }
+        if (request()->last_name) {
+            $contacts=$contacts->where('last_name','like','%'.request()->last_name.'%');
+        }
+        if (request()->email) {
+            $contacts=$contacts->where('email','like','%'.request()->email.'%');
+        }
+        if (request()->phone) {
+            $contacts=$contacts->where('phone','like','%'.request()->phone.'%');
+        }
+        if (request()->keyword) {
+            $contacts=$contacts->whereHas('company',function($query){
+                $query->where('name','like','%'.request()->keyword.'%')->orWhere('email','like','%'.request()->keyword.'%');
+            });
+        }
+        $contacts=$contacts->paginate(10);
         if (!$contacts->count()) {
             $message='There No Contact';
         }

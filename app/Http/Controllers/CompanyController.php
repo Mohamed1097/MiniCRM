@@ -18,7 +18,14 @@ class CompanyController extends Controller
     public function index()
     {
         $message=null;
-        $companies=Company::paginate(10);
+        $companies=new Company();
+        if (request()->name) {
+            $companies=$companies->where('name','like','%'.request()->name.'%');
+        }
+        if (request()->email) {
+            $companies=$companies->where('email','like','%'.request()->email.'%');
+        }
+        $companies=$companies->paginate(10);
         if (!$companies->count()) {
             $message='There No Companies';
         }

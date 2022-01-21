@@ -21,7 +21,7 @@
    <link rel="stylesheet" href={{asset('plugins/summernote/summernote-bs4.min.css')}}>
 
 </head>
-{{-- @include('layouts.filterModal') --}}
+@yield('filter')
 <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
