@@ -38,7 +38,7 @@
                         <a class="btn btn-info" href={{route("companies.edit",['company'=>$company->id])}}>
                           <i class="fas fa-edit"></i>
                         </a>
-                        <button class="btn btn-danger delete-btn" type='submit' element={{$company->name}} data-toggle="modal" data-target='#delete-modal' url={{route('companies.destroy',['company'=>$company->id])}}>
+                        <button class="btn btn-danger delete-btn" type='submit' element='{{$company->name}}' data-toggle="modal" data-target='#delete-modal' url={{route('companies.destroy',['company'=>$company->id])}}>
                           <i class="fas fa-trash"></i>
                         </button>
                       </td>

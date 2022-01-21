@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CompanyRequest;
 use App\Http\Requests\ContactRequest;
+use App\Mail\WelcomeNotification;
 use App\Models\Company;
 use App\Models\ContactPerson;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class MainController extends Controller
@@ -38,6 +40,7 @@ class MainController extends Controller
         $request->file('logo')->storeAs('public/'.$path,$logoName);
         $company->logo=$path.$logoName;
         $company->save();
+        Mail::to($company->email)->send(new WelcomeNotification($company->name));
         return responseJson(1,'success',['company'=>$company]);
          
     }

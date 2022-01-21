@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CompanyRequest;
+use App\Mail\WelcomeNotification;
 use App\Models\Company;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
@@ -56,6 +57,7 @@ class CompanyController extends Controller
         $request->file('logo')->storeAs('public/'.$path,$logoName);
         $company->logo=$path.$logoName;
         $company->save();
+        Mail::to($company->email)->send(new WelcomeNotification($company->name));
         return redirect()->route('companies.index');
     }
 
