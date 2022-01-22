@@ -75,7 +75,7 @@ class CompanyController extends Controller
         if (!$contacts->count()) {
             $message='There Is No Contact';
         }
-        $contacts=$contacts->paginate(1);
+        $contacts=$contacts->paginate(10);
         return view('companies.show',['title'=>$company->name,'company'=>$company,'contacts'=>$contacts,'message'=>$message]);
     }
 

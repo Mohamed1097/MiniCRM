@@ -3,6 +3,7 @@
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,9 @@ Route::group(['middleware'=>['auth','PreventBackHistory']],function(){
     Route::get('/',[HomeController::class,'index'])->name('home');
     Route::resource('companies',CompanyController::class);
     Route::resource('contacts',ContactController::class);
+    Route::resource('users',UserController::class);
+    Route::get('change-password',[UserController::class,'changePassword'])->name('change-password');
+    Route::post('change-password',[UserController::class,'setNewPassword'])->name('set-new-password');
 });
 
 
