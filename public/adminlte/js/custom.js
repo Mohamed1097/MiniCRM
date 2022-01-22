@@ -6,8 +6,8 @@ $('.delete-btn').click(function()
 {
   raw=this.parentElement.parentElement
   
-  $('.modal-body').html('Are You Sure You Wanna Delete '+this.getAttribute('element'));
-  $('.modal-footer .delete').attr('url',$(this).attr('url'));
+  $('#delete-modal .modal-body').html('Are You Sure You Wanna Delete '+this.getAttribute('element'));
+  $('#delete-modal .modal-footer .delete').attr('url',$(this).attr('url'));
 })
 
 $('.modal-footer .delete').click(function()

@@ -69,7 +69,14 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        //
+        $company=Company::findOrFail($id);
+        $message=null;
+        $contacts=$company->contacts();
+        if (!$contacts->count()) {
+            $message='There Is No Contact';
+        }
+        $contacts=$contacts->paginate(1);
+        return view('companies.show',['title'=>$company->name,'company'=>$company,'contacts'=>$contacts,'message'=>$message]);
     }
 
     /**
