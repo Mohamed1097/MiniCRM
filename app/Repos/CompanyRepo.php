@@ -13,7 +13,7 @@ class CompanyRepo extends BaseRepo implements CompanyRepoInterface
     {
         $this->model=$model;
     }
-   public function filter(String $name=null,String $email=null):array
+   public function filter():array
    {
        $request=request();
        $model=$this->model;
