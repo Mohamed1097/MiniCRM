@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CompanyRequest;
+use App\Interfaces\CompanyRepoInterface;
 use App\Mail\WelcomeNotification;
-use App\Models\Company;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
+    private $companyRepo;
+    public function __construct(CompanyRepoInterface $companyRepo)
+    {
+        $this->companyRepo=$companyRepo;        
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,18 +23,9 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $message=null;
-        $companies=new Company();
-        if (request()->name) {
-            $companies=$companies->where('name','like','%'.request()->name.'%');
-        }
-        if (request()->email) {
-            $companies=$companies->where('email','like','%'.request()->email.'%');
-        }
-        $companies=$companies->paginate(10);
-        if (!$companies->count()) {
-            $message='There No Companies';
-        }
+        $filter=$this->companyRepo->filter();   
+        $companies=$filter['companies'];
+        $message=$filter['message'];
         return view('companies.index',['title'=>'Companies','companies'=>$companies,'message'=>$message]);
     }
 
@@ -49,14 +45,13 @@ class CompanyController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CompanyRequest $request)
-    {
-        $company=Company::create($request->all());
+    public function store(CompanyRequest $request){
         $path='logos/'.date('Y').'/'.date('M').'/'.date('d').'/';
         $logoName=$request->logo->hashName();
         $request->file('logo')->storeAs('public/'.$path,$logoName);
-        $company->logo=$path.$logoName;
-        $company->save();
+        $request->merge(['logo'=>$path.$logoName]);
+        $company=$this->companyRepo->create($request->all());
+        $this->companyRepo->saveLogo($path.$logoName,$company);
         Mail::to($company->email)->send(new WelcomeNotification($company->name));
         return redirect()->route('companies.index');
     }
@@ -69,14 +64,10 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        $company=Company::findOrFail($id);
-        $message=null;
-        $contacts=$company->contacts();
-        if (!$contacts->count()) {
-            $message='There Is No Contact';
-        }
-        $contacts=$contacts->paginate(10);
-        return view('companies.show',['title'=>$company->name,'company'=>$company,'contacts'=>$contacts,'message'=>$message]);
+        $company=$this->companyRepo->findById($id);
+        $contacts=$this->companyRepo->contacts($company);
+        return view('companies.show',['title'=>$company->name,'company'=>$company,
+        'contacts'=>$contacts['contacts'],'message'=>$contacts['message']]);
     }
 
     /**
@@ -87,7 +78,7 @@ class CompanyController extends Controller
      */
     public function edit($id)
     {
-        $company=Company::findOrfail($id);
+        $company=$this->companyRepo->findById($id);
         $title='Edit '.$company->name;
         return view('companies.edit',['title'=>$title,'company'=>$company]);
     }
@@ -101,19 +92,17 @@ class CompanyController extends Controller
      */
     public function update(CompanyRequest $request, $id)
     {
-        $company=Company::findOrFail($id);
-        if($request->has('logo'))
-        {
+        if($request->has('logo')){
+            $company=$this->companyRepo->findById($id);
             $path='logos/'.date('Y').'/'.date('M').'/'.date('d').'/';
+            $logoName=$request->logo->hashName();
+            $request->file('logo')->storeAs('public/'.$path,$logoName);
             if (Storage::disk('public')->exists($company->logo)) {
                 File::delete('storage/'.$company->logo);
             }
-            $logoName=$request->logo->hashName();
-            $request->file('logo')->storeAs('public/'.$path,$logoName);
-            $company->logo=$path.$logoName;
-            $company->save();
+            $this->companyRepo->saveLogo($path.$logoName,$company);
         }
-        $company->update($request->all());
+        $this->companyRepo->update($request->all(),$id);
         return redirect()->route('companies.index');
     }
 
@@ -125,10 +114,10 @@ class CompanyController extends Controller
      */
     public function destroy($id)
     {
-        $company=Company::findOrFail($id);
+        $company=$this->companyRepo->findById($id);
         if (Storage::disk('public')->exists($company->logo)) {
             File::delete('storage/'.$company->logo);
         }
-        return $company->delete() ? responseJson(1,'success') : responseJson(0,'There Something Try Again Later');
+        return $this->companyRepo->delete($id) ? responseJson(1,'success') : responseJson(0,'There Something Try Again Later');
     }
 }

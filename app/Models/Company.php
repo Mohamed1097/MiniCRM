@@ -9,7 +9,7 @@ class Company extends Model
 
     protected $table = 'companies';
     public $timestamps = true;
-    protected $fillable = array('name', 'email', 'website_url');
+    protected $fillable = array('name', 'email','website_url');
 
     public function contacts(){
         return $this->hasMany('App\Models\ContactPerson');

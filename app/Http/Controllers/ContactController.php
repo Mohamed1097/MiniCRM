@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactRequest;
-use App\Models\ContactPerson;
+use App\Interfaces\ContactRepoInterface;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
+    private $contactRepo;
+    public function __construct(ContactRepoInterface $contactRepo)
+    {
+        $this->contactRepo=$contactRepo;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,30 +20,9 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $message=null;
-        $contacts=new ContactPerson();
-        if (request()->first_name) {
-            $contacts=$contacts->where('first_name','like','%'.request()->first_name.'%');
-        }
-        if (request()->last_name) {
-            $contacts=$contacts->where('last_name','like','%'.request()->last_name.'%');
-        }
-        if (request()->email) {
-            $contacts=$contacts->where('email','like','%'.request()->email.'%');
-        }
-        if (request()->phone) {
-            $contacts=$contacts->where('phone','like','%'.request()->phone.'%');
-        }
-        if (request()->keyword) {
-            $contacts=$contacts->whereHas('company',function($query){
-                $query->where('name','like','%'.request()->keyword.'%')->orWhere('email','like','%'.request()->keyword.'%');
-            });
-        }
-        $contacts=$contacts->paginate(10);
-        if (!$contacts->count()) {
-            $message='There No Contact';
-        }
-        return view('contacts.index',['title'=>'Contacts','contacts'=>$contacts,'message'=>$message]);
+        $contacts=$this->contactRepo->filter();
+        $message=$contacts['message'];
+        return view('contacts.index',['title'=>'Contacts','contacts'=>$contacts['contacts'],'message'=>$message]);
     }
 
     /**
@@ -59,7 +43,7 @@ class ContactController extends Controller
      */
     public function store(ContactRequest $request)
     {
-        ContactPerson::create($request->all());
+        $this->contactRepo->create($request->all());
         return redirect()->route('contacts.index');
     }
 
@@ -82,7 +66,7 @@ class ContactController extends Controller
      */
     public function edit($id)
     {
-        $contact=ContactPerson::findOrFail($id);
+        $contact=$this->contactRepo->findById($id);
         $title='Edit '.$contact->full_name;
         return view('contacts.edit',['title'=>$title,'contact'=>$contact]);
     }
@@ -96,7 +80,7 @@ class ContactController extends Controller
      */
     public function update(Request $request, $id)
     {
-        ContactPerson::findOrFail($id)->update($request->all());
+        $this->contactRepo->update($request->all(),$id);
         return redirect()->route('contacts.index');
     }
 
@@ -108,7 +92,7 @@ class ContactController extends Controller
      */
     public function destroy($id)
     {
-        return ContactPerson::findOrFail($id)->delete($id) ? responseJson(1,'success') : responseJson(0,'There something Wrong Try Agian Later ');
+        return $this->contactRepo->delete($id) ? responseJson(1,'success') : responseJson(0,'There something Wrong Try Agian Later ');
         
     }
 }

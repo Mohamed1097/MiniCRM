@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Models\User;
+use App\Interfaces\UserRepoInterface;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public $userRepo;
+    public function __construct(UserRepoInterface $userRepo){
+        $this->userRepo=$userRepo;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -16,8 +20,7 @@ class UserController extends Controller
     public function index()
     {
         $message=null;
-
-        return view('users.index',['title'=>'Users','users'=>User::paginate(10),'message'=>$message]);
+        return view('users.index',['title'=>'Users','users'=>$this->userRepo->paginate(10),'message'=>$message]);
     }
 
     /**
@@ -39,7 +42,7 @@ class UserController extends Controller
     public function store(UserRequest $request)
     {
         $request->merge(['password'=>bcrypt($request->password)]);
-        User::create($request->all());
+        $this->userRepo->create($request->all());
         return redirect(route('users.index'));
     }
 
@@ -62,7 +65,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user=User::findOrFail($id);
+        $user=$this->userRepo->findById($id);
         $title='Edit '.$user->name;
         return view('users.edit',['title'=>$title,'user'=>$user]);
     }
@@ -76,13 +79,11 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, $id)
     {
-        $user=User::findOrFail($id);
-        if ($user->id!=auth()->user()->id) {
-            $user->name=$request->name;
-            $user->save();
+        if ($id!=auth()->user()->id) {
+            $this->userRepo->update(['name'=>$request->name],$id);
             return redirect(route('users.index'));
         }
-        $user->update($request->except('password'));
+        $this->userRepo->update($request->except('password'),$id);
         return redirect(route('users.index'));
     }
 
@@ -97,8 +98,7 @@ class UserController extends Controller
         if ($id==auth()->user()->id) {
             return redirect(route('users.index'));
         }
-        $user=User::findOrFail($id);
-        return $user->delete() ? responseJson(1,'success',) : responseJson(0,'There SomeThing Wrong Try Again Later');
+        return $this->userRepo->delete($id) ? responseJson(1,'success',) : responseJson(0,'There SomeThing Wrong Try Again Later');
     }
     public function changePassword()
     {
@@ -108,12 +108,11 @@ class UserController extends Controller
     {
         $user=auth()->user();
         if(Hash::check($request->current_password,$user->password))
-        {
-            $user->password=bcrypt($request->password);
-            $user->save();
-            return redirect(route('change-password'))->withErrors(['message'=>'The Password Change Successfully']);
+        { 
+            return $this->userRepo->update(['password'=>bcrypt($request->password)],$user->id) ?
+             redirect(route('change-password'))->withErrors(['message'=>'The Password Change Successfully']) :
+             redirect(route('change-password'))->withErrors(['message'=>'There Is Something Wrong Try Again Later']); 
         }
         return redirect(route('change-password'))->withErrors(['current_password'=>'Your Current Password Is Wrong']);
-
     }
 }
