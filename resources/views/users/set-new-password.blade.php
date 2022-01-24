@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-@inject('model', 'App\Models\User')
 <div class="card card-primary">
   @error('message')
               <div class="alert alert-success alert-dismissible">

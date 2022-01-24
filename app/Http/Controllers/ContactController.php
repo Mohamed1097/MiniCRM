@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactRequest;
+use App\Interfaces\CompanyRepoInterface;
 use App\Interfaces\ContactRepoInterface;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
-    private $contactRepo;
-    public function __construct(ContactRepoInterface $contactRepo)
+    private $contactRepo,$companyRepo;
+    public function __construct(ContactRepoInterface $contactRepo,CompanyRepoInterface $companyRepo)
     {
         $this->contactRepo=$contactRepo;
+        $this->companyRepo=$companyRepo;
     }
     /**
      * Display a listing of the resource.
@@ -21,8 +23,11 @@ class ContactController extends Controller
     public function index()
     {
         $contacts=$this->contactRepo->filter();
-        $message=$contacts['message'];
-        return view('contacts.index',['title'=>'Contacts','contacts'=>$contacts['contacts'],'message'=>$message]);
+        $message=null;
+        if (!count($contacts)) {
+            $message='There Is No Contacts';
+        }
+        return view('contacts.index',['title'=>'Contacts','contacts'=>$contacts,'message'=>$message,'model'=>$this->contactRepo->getModel()]);
     }
 
     /**
@@ -32,7 +37,7 @@ class ContactController extends Controller
      */
     public function create()
     {
-        return view('contacts.create',['title'=>'Add New Contact']);
+        return view('contacts.create',['title'=>'Add New Contact','model'=>$this->contactRepo->getModel(),'companies'=>$this->companyRepo->getModel()]);
     }
 
     /**
@@ -68,7 +73,7 @@ class ContactController extends Controller
     {
         $contact=$this->contactRepo->findById($id);
         $title='Edit '.$contact->full_name;
-        return view('contacts.edit',['title'=>$title,'contact'=>$contact]);
+        return view('contacts.edit',['title'=>$title,'contact'=>$contact,'model'=>$this->contactRepo->getModel(),'companies'=>$this->companyRepo->getModel()]);
     }
 
     /**

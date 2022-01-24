@@ -32,9 +32,13 @@ class BaseRepo implements EloquentRepoInterface
     public function count():int{
         return $this->model->count();
     }
-    public function filter():array
+    public function filter()
     {
-        return [];
+        return;
+    }
+    public function getModel(): ?Model
+    {
+        return $this->model;
     }
 
 }

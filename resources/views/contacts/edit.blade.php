@@ -1,6 +1,5 @@
 @extends('layouts.app')
-@inject('companies','App\Models\Company')
-@inject('model','App\Models\ContactPerson')
+
 @section('content')
 <div class="card card-primary">
   

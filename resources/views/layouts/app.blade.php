@@ -20,6 +20,7 @@
    <link rel="stylesheet" href={{asset('plugins/datatables-buttons/css/buttons.bootstrap4.min.css')}}>
    <link rel="stylesheet" href={{asset('plugins/summernote/summernote-bs4.min.css')}}>
 
+
 </head>
 @yield('filter')
 <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

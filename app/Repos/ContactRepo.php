@@ -11,11 +11,10 @@ class ContactRepo extends BaseRepo implements ContactRepoInterface
     {
         $this->model=$model;
     }
-   public function filter():array
+   public function filter()
    {
        $request=request();
        $model=$this->model;
-       $message=null;
        if ($request->first_name) {
            $model=$model->where('first_name','like','%'.$request->first_name.'%');
        }
@@ -33,10 +32,7 @@ class ContactRepo extends BaseRepo implements ContactRepoInterface
             $query->where('name','like','%'.$request->keyword.'%')->orWhere('email','like','%'.$request->keyword.'%');
         });
        }
-       if (!$model->count()) {
-           $message='There No Result';
-       }
-        return ['contacts'=>$model->with('company')->paginate(10),'message'=>$message];
+        return $model->with('company')->paginate(10);
    }
 
 }

@@ -1,6 +1,4 @@
 @extends('layouts.app')
-@inject('companies','App\Models\Company')
-@inject('contacts','App\Models\ContactPerson')
 <!-- Content Wrapper. Contains page content -->
 @section('content')
   

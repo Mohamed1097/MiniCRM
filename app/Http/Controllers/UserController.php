@@ -30,7 +30,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create',['title'=>'Add New User']);
+        return view('users.create',['title'=>'Add New User','model'=>$this->userRepo->getModel()]);
     }
 
     /**
@@ -67,7 +67,7 @@ class UserController extends Controller
     {
         $user=$this->userRepo->findById($id);
         $title='Edit '.$user->name;
-        return view('users.edit',['title'=>$title,'user'=>$user]);
+        return view('users.edit',['title'=>$title,'user'=>$user,'model'=>$this->userRepo->getModel()]);
     }
 
     /**
@@ -102,7 +102,7 @@ class UserController extends Controller
     }
     public function changePassword()
     {
-        return view('users.set-new-password',['title'=>'Set New Password']);
+        return view('users.set-new-password',['title'=>'Set New Password','model'=>$this->userRepo->getModel()]);
     }
     public function setNewPassword(UserRequest $request)
     {

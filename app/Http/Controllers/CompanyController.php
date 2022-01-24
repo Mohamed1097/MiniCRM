@@ -23,10 +23,13 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $filter=$this->companyRepo->filter();   
-        $companies=$filter['companies'];
-        $message=$filter['message'];
-        return view('companies.index',['title'=>'Companies','companies'=>$companies,'message'=>$message]);
+        $companies=$this->companyRepo->filter(); 
+        $message=null;
+        if (!count($companies)) {
+            $message='There Is No Companies';
+        }
+
+        return view('companies.index',['title'=>'Companies','companies'=>$companies,'message'=>$message,'model'=>$this->companyRepo->getModel()]);
     }
 
     /**
@@ -36,7 +39,7 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        return view('companies.create',['title'=>'Add New Company']);
+        return view('companies.create',['title'=>'Add New Company','model'=>$this->companyRepo->getModel()]);
     }
 
     /**
@@ -66,8 +69,13 @@ class CompanyController extends Controller
     {
         $company=$this->companyRepo->findById($id);
         $contacts=$this->companyRepo->contacts($company);
+        $message=null;
+        if (!count($contacts)) {
+            $message='There Is No Contacts';
+            # code...
+        }
         return view('companies.show',['title'=>$company->name,'company'=>$company,
-        'contacts'=>$contacts['contacts'],'message'=>$contacts['message']]);
+        'contacts'=>$contacts,'message'=>$message]);
     }
 
     /**
@@ -80,7 +88,7 @@ class CompanyController extends Controller
     {
         $company=$this->companyRepo->findById($id);
         $title='Edit '.$company->name;
-        return view('companies.edit',['title'=>$title,'company'=>$company]);
+        return view('companies.edit',['title'=>$title,'company'=>$company,'model'=>$this->companyRepo->getModel()]);
     }
 
     /**

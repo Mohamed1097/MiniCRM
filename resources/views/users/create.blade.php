@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-@inject('model','App\Models\User' )
 <div class="card card-primary">
     <div class="card-header">
       <h3 class="card-title">{{$title}}</h3>

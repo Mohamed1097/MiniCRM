@@ -1,5 +1,4 @@
 @extends('layouts.app')
-@inject('model','App\Models\Company' )
 @section('content')
 <div class="widget-user-image ml-1 mb-3 d-flex justify-content-center">
   <img class="img-circle elevation-2" style="width: 128px" height="128px" src={{asset('storage/'.$company->logo)}} >

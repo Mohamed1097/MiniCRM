@@ -13,21 +13,17 @@ class CompanyRepo extends BaseRepo implements CompanyRepoInterface
     {
         $this->model=$model;
     }
-   public function filter():array
+   public function filter()
    {
        $request=request();
        $model=$this->model;
-       $message=null;
        if ($request->name) {
            $model=$model->where('name','like','%'.$request->name.'%');
        }
        if ($request->email) {
             $model=$model->where('email','like','%'.$request->email.'%');
        }
-       if (!$model->count()) {
-           $message='There No Result';
-       }
-       return ['companies'=>$model->paginate(10),'message'=>$message];
+       return $model->paginate(10);
    }
    public function saveLogo(String $logo,Company $model):bool
    {
@@ -36,12 +32,8 @@ class CompanyRepo extends BaseRepo implements CompanyRepoInterface
    }
    public function contacts(Company $model)
    {
-    $message=null;
     $contacts=$model->contacts();
-    if (!$contacts->count()) {
-        $message='There Is No Contact';
-    }
-    return ['contacts'=>$contacts->paginate(10),'message'=>$message];
+    return $contacts->paginate(10);
    }
 
 }
