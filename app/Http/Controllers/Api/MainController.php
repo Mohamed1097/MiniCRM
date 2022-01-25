@@ -23,11 +23,11 @@ class MainController extends Controller
     public function companies()
     { 
         $companies=$this->companyRepo->filter();
-        if($companies['message'])
+        if(!count($companies))
         {
-           return responseJson(0,$companies['message']);
+           return responseJson(0,'There Is No Companies');
         }
-        return responseJson(1,'success',$companies['companies']);
+        return responseJson(1,'success',$companies);
     }
     public function addCompany(CompanyRequest $request)
     {
@@ -58,9 +58,9 @@ class MainController extends Controller
     public function contacts()
     {
         $contacts=$this->contactRepo->filter();
-        if($contacts['message'])
+        if(!count($contacts))
         {
-           return responseJson(0,$contacts['message']);
+           return responseJson(0,'There Is No Contacts');
         }
         return responseJson(1,'success',['contacts'=>$contacts['contacts']]);
     }

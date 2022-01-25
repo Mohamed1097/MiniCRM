@@ -86,7 +86,7 @@ class UserRequest extends FormRequest
             'email.email'=>'The Email Is Invalid',
             'email.unique'=>'There Is Another Admin With That Email',
             'password.required'=>'The Password Is Required',
-            'password.min'=>'The Password Is At Least Contains 8 Chars'
+            'password.min'=>'The Password Is At Least Contains 8 Chars',
         ];
     }
 }
